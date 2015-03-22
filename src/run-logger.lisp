@@ -568,7 +568,7 @@
     (notebook-add nb (make-graphs-tab nb) :text "Graphs" :underline 0)
     (notebook-add nb (make-routes-tab nb) :text "Routes" :underline 0)
 
-    (notebook-enable-traversal nb)
+;    (notebook-enable-traversal nb)
 
     (setf (notebook-select nb) (nth 1 (notebook-tabs nb)))))
 
@@ -586,7 +586,19 @@
            (settings (merge-pathnames "db.lisp" libdir)))
       (ensure-directories-exist settings)
       (setf *db-file* settings))
-    #-darwin
+    #+(or win32 windows)
+    (let* ((home (pathname-directory (user-homedir-pathname)))
+	   (last-2 (last home 2))
+	   (libdir (make-pathname :directory
+				  (if (and (string= "AppData" (car last-2))
+					   (string= "Roaming" (cadr last-2)))
+				      (append home '("RunLogger"))
+				      (append home '("AppData" "Roaming" "RunLogger")))))
+	   (settings (merge-pathnames "db.lisp" libdir)))
+      (ensure-directories-exist settings)
+      (setf *db-file* settings))
+    
+    #-(or darwin win32 windows)
     (setf *db-file* (merge-pathnames ".run-logger.lisp" (user-homedir-pathname)))
 
     #+darwin
