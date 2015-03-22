@@ -124,7 +124,8 @@
          (ca-ds (canvas :parent fds :width 700 :height 120 :background "white"))
          (ca-du (canvas :parent fdu :width 700 :height 120 :background "white")))
     (pack (list fa fds fdu) :padx 5 :pady 5)
-    (pack (list ca-a ca-ds ca-du) :padx 5 :pady 5)
+    (dolist (w (list ca-a ca-ds ca-du))
+      (pack w :padx 5 :pady 5))
 
     (push (lambda ()
             (update-histogram ca-a #'second "blue"))
@@ -565,10 +566,10 @@
     (pack f :expand t :fill "both")
     (pack nb :expand t :fill "both" :padx 6 :pady 6)
     
-    (notebook-add nb (make-new-tab nb) :text "Log activity" :underline 0)
-    (notebook-add nb (make-diary-tab nb) :text "Diary" :underline 0)
-    (notebook-add nb (make-graphs-tab nb) :text "Graphs" :underline 0)
-    (notebook-add nb (make-routes-tab nb) :text "Routes" :underline 0)
+    (notebook-add nb (make-new-tab nb) :text "Log activity")
+    (notebook-add nb (make-diary-tab nb) :text "Diary")
+    (notebook-add nb (make-graphs-tab nb) :text "Graphs")
+    (notebook-add nb (make-routes-tab nb) :text "Routes")
 
 ;    (notebook-enable-traversal nb)
 
@@ -613,12 +614,12 @@
     (build-frame root)
     #-darwin
     (let* ((src (pathname-directory
-		 (or #.*compile-file-pathname* #.*load-pathname*)))
+		 (truename (or #.*compile-file-pathname* #.*load-pathname*))))
 	   (icon-file (merge-pathnames "lisp.png"
 				       (make-pathname :directory (butlast src))))
 	   (icon (image-create-photo
 		  :file (namestring (truename icon-file)))))
-      (window-iconphoto root icon))
+       (window-iconphoto root icon))
 
     (let ((sw (window-screenwidth root))
           (sh (window-screenheight root)))
