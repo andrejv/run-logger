@@ -611,7 +611,15 @@
       (window-configure root :menu mbar))
     
     (build-frame root)
-    
+    #-darwin
+    (let* ((src (pathname-directory
+		 (or #.*compile-file-pathname* #.*load-pathname*)))
+	   (icon-file (merge-pathnames "lisp.png"
+				       (make-pathname :directory (butlast src))))
+	   (icon (image-create-photo
+		  :file (namestring (truename icon-file)))))
+      (window-iconphoto root icon))
+
     (let ((sw (window-screenwidth root))
           (sh (window-screenheight root)))
       (setf (window-geometry root) (list ()
