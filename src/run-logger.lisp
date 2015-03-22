@@ -561,7 +561,7 @@
   (setf (window-title root)"Run Logger")
   (setf (window-resizable root) '(nil nil))
   (let* ((f (frame :parent root))
-         (nb (notebook :parent root)))
+         (nb (notebook :parent f)))
     (pack f :expand t :fill "both")
     (pack nb :expand t :fill "both" :padx 6 :pady 6)
     
