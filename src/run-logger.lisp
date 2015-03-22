@@ -560,7 +560,9 @@
 (defun build-frame (root)
   (setf (window-title root)"Run Logger")
   (setf (window-resizable root) '(nil nil))
-  (let ((nb (notebook :parent root)))
+  (let* ((f (frame :parent root))
+         (nb (notebook :parent root)))
+    (pack f :expand t :fill "both")
     (pack nb :expand t :fill "both" :padx 6 :pady 6)
     
     (notebook-add nb (make-new-tab nb) :text "Log activity" :underline 0)
