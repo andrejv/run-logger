@@ -249,13 +249,11 @@
           :row 6 :column 2 :sticky "w")
 
     (push (lambda ()
-            (let ((routes (loop for k being the hash-key in *activity-hash*
-                             collect k)))
-              (treeview-delete list (treeview-children list ""))
-              (dolist (item (sort routes #'string>))
-                (treeview-insert list "" "end"
-                                 :values (list item)))
-              (treeview-selection-set list (first (treeview-children list "")))))
+            (treeview-delete list (treeview-children list ""))
+            (dolist (item (all-activities))
+              (treeview-insert list "" "end"
+                               :values (list (activity-id item))))
+            (treeview-selection-set list (first (treeview-children list ""))))
           *activity-hooks*)
 
     (bind-event list "<<TreeviewSelect>>"

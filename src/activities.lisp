@@ -73,7 +73,7 @@
 
 (defun activity-id (activity)
   (format nil "~{~2,'0d~^/~}-~{~2,'0d~^:~}"
-          (activity-date activity)
+          (reverse (activity-date activity))
           (activity-start activity)))
 
 (defun activity-populate-hash (lst)
@@ -150,6 +150,18 @@
                      (< (compare-lists a b) 0))
         :key #'activity-duration))
 
+(defun activities-sort-by-date (activities)
+  "Sorts acticities by date."
+  (sort activities (lambda (a b)
+                     (> (compare-lists a b) 0))
+        :key #'activity-date))
+
+(defun all-activities ()
+  "Returns the all activities."
+  (activities-sort-by-date
+   (loop for v being the hash-value in *activity-hash*
+      collect v)))
+
 (defun date-minus-days (date days)
   "For DATE = (YEAR MONTH DAY) returns a triple of the date before DAYS days."
   (let* ((u-date (encode-universal-time 0 0 0 (caddr date) (cadr date) (car date))))
@@ -204,7 +216,7 @@
   "A nice display for pace."
   (multiple-value-bind (min sec)
       (truncate dec)
-    (format nil "~a:~a min/km" min (truncate (/ (* 6000 sec) 100)))))
+    (format nil "~a:~2,'0d min/km" min (truncate (/ (* 6000 sec) 100)))))
 
 (defun time-disp (time)
   "A nice diplay for time"
@@ -212,7 +224,7 @@
 
 (defun date-disp (date)
   "A nice display for dates."
-  (format nil "~{~2,'0d~^/~}" date))
+  (format nil "~{~2,'0d~^/~}" (reverse date)))
 
 (defun activities-statistics (activities)
   "Returns the number of activities, total distance, total duration
