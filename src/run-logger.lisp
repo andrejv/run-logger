@@ -299,9 +299,7 @@
                          :columns '("act")))
          (acts-scroll (scrollbar :parent aframe :orient "vertical"))
          (r-name (string-var))
-         (r-dist (float-var))
-         (save (button :parent f :text "Save"))
-         (delete (button :parent f :text "Remove")))
+         (r-dist (float-var)))
 
     (setf (treeview-heading-text list "route") "Route")
     (window-configure list :show '("headings"))
@@ -327,9 +325,16 @@
     (grid (spinbox :parent f :width 20
                    :from 0 :to 100 :increment 0.05 :textvariable r-dist)
           :row 1 :column 2 :sticky "w")
-    (grid save :row 2 :column 2 :sticky "w")
-    (grid delete :row 3 :column 2 :sticky "nw")
-    
+    (grid (button :parent f :text "Save"
+                  :command (lambda ()
+                             (route-add
+                              (make-route :name (var-value r-name)
+                                          :distance (var-value r-dist)))))
+          :row 2 :column 2 :sticky "w")
+    (grid (button :parent f :text "Remove"
+                  :command (lambda ()
+                             (route-delete (var-value r-name))))
+          :row 3 :column 2 :sticky "nw")
 
     (grid aframe :row 5 :column 0 :rowspan 4 :sticky "nse")
     (grid acts :row 0 :column 0 :sticky "nse")
@@ -395,12 +400,6 @@
                                               (activity-distance act)))
                                 "-"))))))
 
-    (bind-command save (lambda ()
-                         (route-add (make-route :name (var-value r-name)
-                                                :distance (var-value r-dist)))))
-    (bind-command delete (lambda ()
-                           (route-delete (var-value r-name))))
-
     (push (lambda ()
             (event-generate list "<<TreeviewSelect>>"))
           *activity-hooks*)
@@ -438,7 +437,7 @@
          (dist (float-var))
          (hr (integer-var))
          (route (string-var))
-         (routes (combobox :parent f :width 6 :textvariable route)))
+         (routes))
 
     (grid (label :text "Date:" :parent f)
           :row 0 :column 0 :sticky "es")
@@ -496,7 +495,7 @@
 
     (grid (label :text "Route:" :parent f)
           :row 5 :column 0 :sticky "e")
-    (grid routes
+    (grid (setf routes (combobox :parent f :width 6 :textvariable route))
           :row 5 :column 1 :columnspan 3 :sticky "we")
     
     (grid (button :text "Save" :parent f
