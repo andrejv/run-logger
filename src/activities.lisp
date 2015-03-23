@@ -258,7 +258,7 @@ and average pace of acitvities."
     (loop
        repeat 12
        for act in acts
-       for date in (reverse dates)
+       for date in (mapcar (lambda (d) (date-minus-days d -1)) (reverse dates))
        collect (if act
                    (append (list date (length act)) (activities-statistics-sums act))
                    (list date 0 0.0 0.0)))))
