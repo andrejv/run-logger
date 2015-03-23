@@ -177,8 +177,8 @@
         ((> (car date1) (car date2)) 1)
         (t (compare-lists (cdr date1) (cdr date2)))))
 
-(defun activities-between (date1 date2)
-  "Returns the activities d between date1< d <=date2."
+(defun activities-between (date1 date2 &key)
+  "Returns the activities d between date1 < d <= date2."
   (loop for val being the hash-values in *activity-hash*
      when (and (< (compare-lists date1 (activity-date val)) 0)
                (<= (compare-lists (activity-date val) date2) 0))
@@ -190,6 +190,14 @@
       (get-decoded-time)
     (declare (ignore s m h))
     (list year month day)))
+
+(defun today-day-of-week ()
+  "Returns the day of the week for today."
+  (multiple-value-bind (s m h day month year dow)
+      (get-decoded-time)
+    (declare (ignore s m h day month year))
+    dow))
+
 
 (defun triple-to-mins (triple)
   "Turns (hour min sec) into minutes."
@@ -241,10 +249,11 @@ and average pace of acitvities."
 
 (defun activities-by-days ()
   "Returns a list of activities separated by 10 day marks."
-  (let* ((dates (loop repeat 13
-                  for date = (today) then (date-minus-days date 7)
-                  collect date))
-         (acts (loop for (date1 date2) on (reverse dates)
+  (let* ((dates (loop repeat 12
+                   for diff = (1+ (today-day-of-week)) then 7
+                   for date = (date-minus-days (today) diff) then (date-minus-days date diff)
+                   collect date))
+         (acts (loop for (date1 date2) on (reverse (cons (today) dates))
                   collect (activities-between date1 date2))))
     (loop
        repeat 12
