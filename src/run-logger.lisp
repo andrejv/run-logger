@@ -112,7 +112,7 @@
     (loop
        for date in (first hist)
        for i = (+ left-margin d/2) then (+ i d)
-       do (canvas-create-text c (list i bottom-border) :text (subseq date 5) :anchor "n"))))
+       do (canvas-create-text c (list i bottom-border) :text (subseq date 0 5) :anchor "n"))))
 
 (defun make-graphs-tab (p)
   "This is the graphs notebook tab."
