@@ -247,8 +247,8 @@ and average pace of acitvities."
                 (pace-disp (/ dur dist))
                 "-")))))
 
-(defun activities-by-days ()
-  "Returns a list of activities separated by 10 day marks."
+(defun activities-by-weeks ()
+  "Returns a list of activities separated by weeks."
   (let* ((dates (loop repeat 12
                    for diff = (1+ (today-day-of-week)) then 7
                    for date = (date-minus-days (today) diff) then (date-minus-days date diff)

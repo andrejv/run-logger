@@ -73,7 +73,7 @@
 
 (defun update-histogram (c key color)
   "Updates the histogram in canvas c."
-  (let* ((activities (activities-by-days))
+  (let* ((activities (activities-by-weeks))
          (c-width (window-reqwidth c))
          (c-height (window-reqheight c))
          (left-margin 30)
@@ -366,7 +366,10 @@
               (dolist (item (treeview-children list ""))
                 (treeview-delete list item))
               (dolist (item routes)
-                (treeview-insert list "" "end" :values (list item)))))
+                (treeview-insert list "" "end" :values (list item)))
+              (when routes
+                (setf (treeview-selection list)
+                      (first (treeview-children list ""))))))
           *route-hooks*)
 
     (bind-event list "<<TreeviewSelect>>"
@@ -382,8 +385,12 @@
                             (var-value "disp-dur") "-"
                             (var-value "disp-pace") "-")
                       (treeview-delete acts (treeview-children acts ""))
-                      (dolist (act (activities-on-route (route-name route)))
-                        (treeview-insert acts "" "end" :values (list (activity-id act))))))))
+                      (let ((aor (activities-on-route (route-name route))))
+                        (dolist (act aor)
+                          (treeview-insert acts "" "end" :values (list (activity-id act))))
+                        (when aor
+                          (setf (treeview-selection acts)
+                                (car (treeview-children acts "")))))))))
 
     (bind-event acts "<<TreeviewSelect>>"
                 (lambda (e)
