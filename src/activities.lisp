@@ -66,7 +66,7 @@
   (route))
 
 (defvar *activity-hash* nil
-  "The hashtable of all activitys.")
+  "The hashtable of all activities.")
 
 (defvar *activity-hooks* nil
   "Hooks for updating activity list.")
@@ -116,13 +116,13 @@
                      :direction :output
                      :if-exists :supersede
                      :external-format :utf-8)
-    (let ((activitys (loop for k being the hash-values in *activity-hash*
+    (let ((activities (loop for k being the hash-values in *activity-hash*
                      collect k))
           (routes (loop for k being the hash-values in *route-hash*
                      collect k)))
       (with-standard-io-syntax
         (print routes s)
-        (print activitys s)))))
+        (print activities s)))))
 
 (defun activities-in-year (year)
   "Returns the list of activities in the YEAR."
@@ -146,14 +146,16 @@
 
 (defun activities-sort-by-duration (activities)
   "Sorts activities according to duration."
-  (sort activities (lambda (a b)
-                     (< (compare-lists a b) 0))
+  (sort activities
+        (lambda (a b)
+          (< (compare-lists a b) 0))
         :key #'activity-duration))
 
 (defun activities-sort-by-date (activities)
   "Sorts acticities by date."
-  (sort activities (lambda (a b)
-                     (> (compare-lists a b) 0))
+  (sort activities
+        (lambda (a b)
+          (> (compare-lists a b) 0))
         :key #'activity-date))
 
 (defun all-activities ()
@@ -224,7 +226,20 @@
   "A nice display for pace."
   (multiple-value-bind (min sec)
       (truncate dec)
-    (format nil "~a:~2,'0d min/km" min (truncate (/ (* 6000 sec) 100)))))
+    (format nil "~d:~2,'0d min/km" min (truncate (/ (* 6000 sec) 100)))))
+
+(defun speed-disp (speed)
+  "A nice display for speed."
+  (multiple-value-bind (km m)
+      (truncate speed)
+    (format nil "~d:~2,'0d km/h" km (truncate (* 100 m)))))
+
+(defun activity-speed (act)
+  "Display activity speed."
+  (let ((duration (triple-to-mins (activity-duration act))))
+    (if (> duration 0)
+        (speed-disp (/ (activity-distance act) (/ duration 60.0)))
+        "-")))
 
 (defun time-disp (time)
   "A nice diplay for time"

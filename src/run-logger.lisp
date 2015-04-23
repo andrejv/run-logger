@@ -28,7 +28,7 @@
                  collect value))
          (stats (activities-statistics all)))
     (loop for s in stats
-       for i = 0 then (1+ i)
+       for i from 0
        do (setf (var-value (format nil "grid-~a-0" i)) s))))
 
 (defun update-year-stats ()
@@ -37,7 +37,7 @@
          (activities (activities-in-year year))
          (stats (activities-statistics activities)))
     (loop for s in stats
-       for i = 0 then (1+ i)
+       for i from 0
        do (setf (var-value (format nil "grid-~a-1" i)) s))))
 
 (defun update-month-stats ()
@@ -48,7 +48,7 @@
          (activities (activities-in-month month year))
          (stats (activities-statistics activities)))
     (loop for s in stats
-       for i = 0 then (1+ i)
+       for i from 0
        do (setf (var-value (format nil "grid-~a-2" i)) s))))
 
 (defun update-10-day-stats ()
@@ -58,7 +58,7 @@
          (activities (activities-between today-10 today))
          (stats (activities-statistics activities)))
     (loop for s in stats
-       for i = 0 then (1+ i)
+       for i from 0
        do (setf (var-value (format nil "grid-~a-3" i)) s))))
 
 (defun update-prev-10-day-stats ()
@@ -68,7 +68,7 @@
          (activities (activities-between today-10 today))
          (stats (activities-statistics activities)))
     (loop for s in stats
-       for i = 0 then (1+ i)
+       for i from 0
        do (setf (var-value (format nil "grid-~a-4" i)) s))))
 
 (defun update-histogram (c key color)
@@ -117,18 +117,19 @@
 (defun make-graphs-tab (p)
   "This is the graphs notebook tab."
   (let* ((f (frame :parent p :padding '(10 10 10 10)))
-         (fa (labelframe :parent f :text "Activities"))
+         (fac (labelframe :parent f :text "Activities"))
          (fds (labelframe :parent f :text "Distance (km)"))
          (fdu (labelframe :parent f :text "Duration (min)"))
-         (ca-a (canvas :parent fa :width 700 :height 120 :background "white"))
+         (ca-ac (canvas :parent fac :width 700 :height 120 :background "white"))
          (ca-ds (canvas :parent fds :width 700 :height 120 :background "white"))
          (ca-du (canvas :parent fdu :width 700 :height 120 :background "white")))
-    (pack (list fa fds fdu) :padx 5 :pady 5)
-    (dolist (w (list ca-a ca-ds ca-du))
+
+    (pack (list fac fds fdu) :padx 5 :pady 5)
+    (dolist (w (list ca-ac ca-ds ca-du))
       (pack w :padx 5 :pady 5))
 
     (push (lambda ()
-            (update-histogram ca-a #'second "blue"))
+            (update-histogram ca-ac #'second "blue"))
           *activity-hooks*)
     (push (lambda ()
             (update-histogram ca-ds #'fourth "navy"))
@@ -197,7 +198,7 @@
          (start (string-var))
          (dur (string-var))
          (dist (string-var))
-         (hr (string-var))
+         (speed (string-var))
          (pace (string-var))
          (rt (string-var)))
     
@@ -236,9 +237,9 @@
           :row 3 :column 1 :sticky "e")
     (grid (label :textvariable dist :parent f)
           :row 3 :column 2 :sticky "w")
-    (grid (label :text "Heart rate:" :parent f)
+    (grid (label :text "Speed:" :parent f)
           :row 5 :column 1 :sticky "e")
-    (grid (label :textvariable hr :parent f)
+    (grid (label :textvariable speed :parent f)
           :row 5 :column 2 :sticky "w")
     (grid (label :text "Pace:" :parent f)
           :row 4 :column 1 :sticky "e")
@@ -272,7 +273,7 @@
                                                  (pace-disp (/ (triple-to-mins (activity-duration tr))
                                                                (activity-distance tr)))
                                                  "-")
-                            (var-value hr) (activity-heartrate tr)
+                            (var-value speed) (activity-speed tr)
                             (var-value rt) (activity-route tr))))))
 
     (grid (make-stats-frame f)
@@ -336,7 +337,7 @@
                              (route-delete (var-value r-name))))
           :row 3 :column 2 :sticky "nw")
 
-    (grid aframe :row 5 :column 0 :rowspan 4 :sticky "nse")
+    (grid aframe :row 5 :column 0 :rowspan 5 :sticky "nse")
     (grid acts :row 0 :column 0 :sticky "nse")
     (grid-columnconfigure aframe 0 :weight 1)
     (grid-rowconfigure aframe 0 :weight 1)
@@ -355,10 +356,15 @@
           :row 7 :column 1 :sticky "e")
     (grid (label :textvariable "disp-pace" :parent f :width 20)
           :row 7 :column 2 :sticky "w")
+    (grid (label :text "Speed:" :parent f)
+          :row 8 :column 1 :sticky "e")
+    (grid (label :textvariable "disp-speed" :parent f :width 20)
+          :row 8 :column 2 :sticky "w")
 
     (setf (var-value "disp-date") "-"
           (var-value "disp-dur") "-"
-          (var-value "disp-pace") "-")
+          (var-value "disp-pace") "-"
+          (var-value "disp-speed") "-")
     
     (push (lambda ()
             (let ((routes (loop for k being the hash-key in *route-hash*
@@ -397,15 +403,16 @@
                   (declare (ignore e))
                   (let* ((idx (first (treeview-selection acts)))
                          (curr (and idx (treeview-get acts idx "act")))
-                         (act (and curr (gethash curr *activity-hash*))))
+                         (act (and curr (gethash curr *activity-hash*)))
+                         (duration (and act (triple-to-mins (activity-duration act)))))
                     (when act
                       (setf (var-value "disp-date") (date-disp (activity-date act))
                             (var-value "disp-dur") (time-disp (activity-duration act))
                             (var-value "disp-pace")
                             (if (> (activity-distance act) 0)
-                                (pace-disp (/ (triple-to-mins (activity-duration act))
-                                              (activity-distance act)))
-                                "-"))))))
+                                (pace-disp (/ duration (activity-distance act)))
+                                "-")
+                            (var-value "disp-speed") (activity-speed act))))))
 
     (push (lambda ()
             (event-generate list "<<TreeviewSelect>>"))
@@ -417,7 +424,7 @@
     (grid-columnconfigure f 0 :weight 1)
     (grid-columnconfigure f 3 :weight 1)
     (grid-rowconfigure f 4 :weight 1)
-    (grid-rowconfigure f 8 :weight 5)
+    (grid-rowconfigure f 9 :weight 5)
     
     (dolist (sl (grid-slaves f))
       (grid-configure sl :padx 5 :pady 5))
