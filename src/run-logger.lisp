@@ -536,8 +536,7 @@
     (grid (button :text "Import" :parent f
                   :command (lambda ()
                              (let ((file (get-open-file :filetypes '(("GPX files" "gpx")))))
-                               (when (and (length file)
-                                          (probe-file file))
+                               (when (> (length file) 0)
                                  (handler-case
                                      (multiple-value-bind (i-len i-dur i-date i-start)
                                          (import-file file)
