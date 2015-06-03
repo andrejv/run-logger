@@ -533,6 +533,30 @@
                              (message-box "Saved" :title "OK" :detail "Activity has been saved.")))
           :row 6 :column 1 :columnspan 2 :sticky "wn")
 
+    (grid (button :text "Import" :parent f
+                  :command (lambda ()
+                             (let ((file (get-open-file :filetypes '(("GPX files" "gpx")))))
+                               (when (and (length file)
+                                          (probe-file file))
+                                 (handler-case
+                                     (multiple-value-bind (i-len i-dur i-date i-start)
+                                         (import-file file)
+                                       (setf (var-value s-h) (first i-start)
+                                             (var-value s-m) (second i-start)
+                                             (var-value s-s) (third i-start)
+                                             (var-value h) (first i-dur)
+                                             (var-value m) (second i-dur)
+                                             (var-value s) (third i-dur)
+                                             (var-value dist) i-len
+                                             (var-value year) (first i-date)
+                                             (var-value month) (nth (second i-date) months)
+                                             (var-value day) (third i-date)))
+                                   (error (e)
+                                     (message-box "Error"
+                                                  :detail (format nil "~a" e)
+                                                  :icon "error")))))))
+          :row 7 :column 1 :columnspan 2 :sticky "wn")
+
     (push (lambda ()
             (let ((rts (loop for k being the hash-key in *route-hash*
                           collect k)))
@@ -552,7 +576,7 @@
     (grid-columnconfigure f 3 :weight 1)
     
     (grid-rowconfigure f 0 :weight 1)
-    (grid-rowconfigure f 6 :weight 3)
+    (grid-rowconfigure f 7 :weight 3)
 
     (dolist (sl (grid-slaves f))
       (grid-configure sl :padx 5 :pady 5))

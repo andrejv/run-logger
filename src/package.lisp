@@ -21,5 +21,5 @@
 ;;;
 
 (defpackage :run-logger
-  (:use :cl :tk)
+  (:use :cl :tk :xmls)
   (:export :main))

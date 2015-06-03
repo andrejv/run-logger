@@ -25,11 +25,12 @@
     :description "A simple GUI application for keeping a diary of running activities."
     :author "Andrej Vodopivec <andrej.vodopivec@gmial.com>"
     :license "MIT"
-    :depends-on (:simple-tk)
+    :depends-on (:simple-tk :xmls)
     :components
     ((:module "src"
               :serial t
               :components
               ((:file "package")
                (:file "activities")
+               (:file "gpx")
                (:file "run-logger")))))
