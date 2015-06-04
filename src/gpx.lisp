@@ -53,8 +53,7 @@
                   (sin (/ lon-distance 2)))))
          (d (* 2 (atan (sqrt a) (sqrt (- 1 a))) r))
          (e (/ (- (third point-1) (third point-2)) 1000)))
-    (sqrt (+ (* d d) (* e e)))
-    d))
+    (sqrt (+ (* d d) (* e e)))))
 
 (defun track-length (points)
   "Returns the distance of the track given by POINTS gives as a list
@@ -92,7 +91,7 @@ STR is a string `2015-01-10T10:13:44Z`"
       (decf (first d)))
     d))
 
-(defun import-file (file)
+(defun import-gpx-file (file)
   "Imports the FILE in the GPX format and returns the length,
 duration, date and start time of the track."
   (let* ((track (get-track-points file))
@@ -101,4 +100,4 @@ duration, date and start time of the track."
          (start (parse-time (fourth (first track))))
          (end (parse-time (fourth (first (last track)))))
          (duration (time-diff end start)))
-    (values (format nil "~,3f" len) duration date start)))
+    (values (format nil "~,2f" len) duration date start)))

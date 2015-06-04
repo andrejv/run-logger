@@ -536,10 +536,10 @@
     (grid (button :text "Import" :parent f
                   :command (lambda ()
                              (let ((file (get-open-file :filetypes '(("GPX files" "gpx")))))
-                               (when (> (length file) 0)
+                               (unless (string= file "")
                                  (handler-case
                                      (multiple-value-bind (i-len i-dur i-date i-start)
-                                         (import-file file)
+                                         (import-gpx-file file)
                                        (setf (var-value s-h) (first i-start)
                                              (var-value s-m) (second i-start)
                                              (var-value s-s) (third i-start)
@@ -604,8 +604,6 @@
     (notebook-add nb (make-diary-tab nb) :text "Diary")
     (notebook-add nb (make-graphs-tab nb) :text "Graphs")
     (notebook-add nb (make-routes-tab nb) :text "Routes")
-
-;    (notebook-enable-traversal nb)
 
     (setf (notebook-select nb) (nth 1 (notebook-tabs nb)))))
 
