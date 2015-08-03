@@ -82,7 +82,7 @@
     (setf (gethash (activity-id tr) *activity-hash*) tr)))
 
 (defun activity-update ()
-  "Call all hooks on trakc list update."
+  "Call all hooks on track list update."
   (dolist (f *activity-hooks*)
     (funcall f)))
 

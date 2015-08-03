@@ -548,7 +548,7 @@
                                              (var-value s) (third i-dur)
                                              (var-value dist) i-len
                                              (var-value year) (first i-date)
-                                             (var-value month) (nth (second i-date) months)
+                                             (var-value month) (nth (1- (second i-date)) months)
                                              (var-value day) (third i-date)))
                                    (error (e)
                                      (message-box "Error"
