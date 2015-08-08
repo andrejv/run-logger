@@ -308,7 +308,8 @@
                          :columns '("act")))
          (acts-scroll (scrollbar :parent aframe :orient "vertical"))
          (r-name (string-var))
-         (r-dist (float-var)))
+         (r-dist (float-var))
+         (by-duration t))
 
     (setf (treeview-heading-text list "route") "Route")
     (window-configure list :show '("headings"))
@@ -316,6 +317,10 @@
     (setf (treeview-heading-text acts "act") "Activity")
     (setf (treeview-column-anchor acts "act") "center")
     (window-configure acts :show '("headings"))
+    (treeview-heading-command acts "act"
+                              (lambda ()
+                                (setf by-duration (not by-duration))
+                                (event-generate list "<<TreeviewSelect>>")))
     
     (grid list :row 0 :column 0 :sticky "news")
     (grid scroll :row 0 :column 1 :sticky "sn")
@@ -405,7 +410,7 @@
                             (var-value "disp-pace") "-"
                             (var-value "disp-hr") "-")
                       (treeview-delete acts (treeview-children acts ""))
-                      (let ((aor (activities-on-route (route-name route))))
+                      (let ((aor (activities-on-route (route-name route) :by-duration by-duration)))
                         (dolist (act aor)
                           (treeview-insert acts "" "end" :values (list (activity-id act))))
                         (when aor

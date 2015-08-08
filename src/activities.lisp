@@ -137,12 +137,14 @@
                (= (cadr (activity-date value)) month))
      collect value))
 
-(defun activities-on-route (route)
+(defun activities-on-route (route &key (by-duration nil))
   "Returns the list of activities on the ROUTE."
-  (activities-sort-by-duration
-   (loop for value being the hash-values in *activity-hash*
-      when (string= route (activity-route value))
-      collect value)))
+  (let ((activities (loop for value being the hash-values in *activity-hash*
+                       when (string= route (activity-route value))
+                       collect value)))
+    (if by-duration
+        (activities-sort-by-duration activities)
+        (activities-sort-by-date activities))))
 
 (defun activities-sort-by-duration (activities)
   "Sorts activities according to duration."
@@ -150,6 +152,13 @@
         (lambda (a b)
           (< (compare-lists a b) 0))
         :key #'activity-duration))
+
+(defun activities-sort-by-date (activities)
+  "Sorts activities accordint to date."
+  (sort activities
+        (lambda (a b)
+          (< compare-lists a b) 0)
+        :key #'activity-date))
 
 (defun activities-sort-by-date (activities)
   "Sorts acticities by date."
