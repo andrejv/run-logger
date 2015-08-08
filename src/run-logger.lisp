@@ -200,13 +200,14 @@
          (dist (string-var))
          (speed (string-var))
          (pace (string-var))
-         (rt (string-var)))
+         (rt (string-var))
+         (hr (string-var)))
     
     (setf (treeview-heading-text list "act") "Activity")
     (setf (treeview-column-anchor list "act") "center")
     (window-configure list :show '("headings"))
     
-    (grid browser :row 0 :column 0 :rowspan 8 :sticky "nse")
+    (grid browser :row 0 :column 0 :rowspan 9 :sticky "nse")
     (grid list :row 0 :column 0 :sticky "nwes")
     (grid scroll :row 0 :column 1 :sticky "ns")
     (grid-columnconfigure browser 0 :weight 1)
@@ -237,18 +238,22 @@
           :row 3 :column 1 :sticky "e")
     (grid (label :textvariable dist :parent f)
           :row 3 :column 2 :sticky "w")
-    (grid (label :text "Speed:" :parent f)
-          :row 5 :column 1 :sticky "e")
-    (grid (label :textvariable speed :parent f)
-          :row 5 :column 2 :sticky "w")
     (grid (label :text "Pace:" :parent f)
           :row 4 :column 1 :sticky "e")
     (grid (label :textvariable pace :parent f)
           :row 4 :column 2 :sticky "w")
-    (grid (label :text "Route:" :parent f)
+    (grid (label :text "Speed:" :parent f)
+          :row 5 :column 1 :sticky "e")
+    (grid (label :textvariable speed :parent f)
+          :row 5 :column 2 :sticky "w")
+    (grid (label :text "Heartrate:" :parent f)
           :row 6 :column 1 :sticky "e")
-    (grid (label :textvariable rt :parent f :width 20)
+    (grid (label :textvariable hr :parent f :width 20)
           :row 6 :column 2 :sticky "w")
+    (grid (label :text "Route:" :parent f)
+          :row 7 :column 1 :sticky "e")
+    (grid (label :textvariable rt :parent f :width 20)
+          :row 7 :column 2 :sticky "w")
 
     (push (lambda ()
             (treeview-delete list (treeview-children list ""))
@@ -274,14 +279,17 @@
                                                                (activity-distance tr)))
                                                  "-")
                             (var-value speed) (activity-speed tr)
+                            (var-value hr) (if (> (activity-heartrate tr) 0)
+                                               (activity-heartrate tr)
+                                               "-")
                             (var-value rt) (activity-route tr))))))
 
     (grid (make-stats-frame f)
-          :column 0 :row 8 :columnspan 3 :sticky "wen")
+          :column 0 :row 9 :columnspan 3 :sticky "wen")
     
     (grid-columnconfigure f 0 :weight 1)
     (grid-columnconfigure f 2 :weight 1)
-    (grid-rowconfigure f 7 :weight 1)
+    (grid-rowconfigure f 8 :weight 1)
 
     (dolist (sl (grid-slaves f))
       (grid-configure sl :padx 5 :pady 5))
@@ -337,7 +345,7 @@
                              (route-delete (var-value r-name))))
           :row 3 :column 2 :sticky "nw")
 
-    (grid aframe :row 5 :column 0 :rowspan 5 :sticky "nse")
+    (grid aframe :row 5 :column 0 :rowspan 6 :sticky "nse")
     (grid acts :row 0 :column 0 :sticky "nse")
     (grid-columnconfigure aframe 0 :weight 1)
     (grid-rowconfigure aframe 0 :weight 1)
@@ -360,11 +368,16 @@
           :row 8 :column 1 :sticky "e")
     (grid (label :textvariable "disp-speed" :parent f :width 20)
           :row 8 :column 2 :sticky "w")
+    (grid (label :text "Heartrate:" :parent f)
+          :row 9 :column 1 :sticky "e")
+    (grid (label :textvariable "disp-hr" :parent f :width 20)
+          :row 9 :column 2 :sticky "w")
 
     (setf (var-value "disp-date") "-"
           (var-value "disp-dur") "-"
           (var-value "disp-pace") "-"
-          (var-value "disp-speed") "-")
+          (var-value "disp-speed") "-"
+          (var-value "disp-hr") "-")
     
     (push (lambda ()
             (let ((routes (loop for k being the hash-key in *route-hash*
@@ -389,7 +402,8 @@
                       (setf (var-value r-dist) (route-distance route))
                       (setf (var-value "disp-date") "-"
                             (var-value "disp-dur") "-"
-                            (var-value "disp-pace") "-")
+                            (var-value "disp-pace") "-"
+                            (var-value "disp-hr") "-")
                       (treeview-delete acts (treeview-children acts ""))
                       (let ((aor (activities-on-route (route-name route))))
                         (dolist (act aor)
@@ -408,11 +422,13 @@
                     (when act
                       (setf (var-value "disp-date") (date-disp (activity-date act))
                             (var-value "disp-dur") (time-disp (activity-duration act))
-                            (var-value "disp-pace")
-                            (if (> (activity-distance act) 0)
-                                (pace-disp (/ duration (activity-distance act)))
-                                "-")
-                            (var-value "disp-speed") (activity-speed act))))))
+                            (var-value "disp-pace") (if (> (activity-distance act) 0)
+                                                        (pace-disp (/ duration (activity-distance act)))
+                                                        "-")
+                            (var-value "disp-speed") (activity-speed act)
+                            (var-value "disp-hr") (if (> (activity-heartrate act) 0)
+                                                      (activity-heartrate act)
+                                                      "-"))))))
 
     (push (lambda ()
             (event-generate list "<<TreeviewSelect>>"))
@@ -424,7 +440,7 @@
     (grid-columnconfigure f 0 :weight 1)
     (grid-columnconfigure f 3 :weight 1)
     (grid-rowconfigure f 4 :weight 1)
-    (grid-rowconfigure f 9 :weight 5)
+    (grid-rowconfigure f 10 :weight 5)
     
     (dolist (sl (grid-slaves f))
       (grid-configure sl :padx 5 :pady 5))
@@ -505,7 +521,7 @@
           :row 4 :column 1 :columnspan 2 :sticky "we")
     (grid (label :text "bpm" :parent f)
           :row 4 :column 3 :sticky "w")
-    (setf (var-value hr) 140)
+    (setf (var-value hr) 0)
 
     (grid (label :text "Route:" :parent f)
           :row 5 :column 0 :sticky "e")
@@ -528,7 +544,10 @@
                                                (var-value m)
                                                (var-value s))
                                :distance (var-value dist)
-                               :heartrate (var-value hr)
+                               :heartrate (let ((hr (var-value hr)))
+                                            (if (string= hr "")
+                                                0
+                                                hr))
                                :route (var-value route)))
                              (message-box "Saved" :title "OK" :detail "Activity has been saved.")))
           :row 6 :column 1 :columnspan 2 :sticky "wn")
@@ -557,7 +576,8 @@
           :row 7 :column 1 :columnspan 2 :sticky "wn")
 
     (push (lambda ()
-            (let ((rts (loop for k being the hash-key in *route-hash*
+            (let ((rts (loop
+                          for k being the hash-key in *route-hash*
                           collect k)))
               (window-configure routes :values rts)))
           *route-hooks*)
