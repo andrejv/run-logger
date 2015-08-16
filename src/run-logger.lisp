@@ -317,10 +317,10 @@
     (setf (treeview-heading-text acts "act") "Activity")
     (setf (treeview-column-anchor acts "act") "center")
     (window-configure acts :show '("headings"))
-    (treeview-heading-command acts "act"
-                              (lambda ()
-                                (setf by-duration (not by-duration))
-                                (event-generate list "<<TreeviewSelect>>")))
+    (setf (treeview-heading-command acts "act")
+          (lambda ()
+            (setf by-duration (not by-duration))
+            (event-generate list "<<TreeviewSelect>>")))
     
     (grid list :row 0 :column 0 :sticky "news")
     (grid scroll :row 0 :column 1 :sticky "sn")
@@ -549,10 +549,7 @@
                                                (var-value m)
                                                (var-value s))
                                :distance (var-value dist)
-                               :heartrate (let ((hr (var-value hr)))
-                                            (if (string= hr "")
-                                                0
-                                                hr))
+                               :heartrate (var-value hr)
                                :route (var-value route)))
                              (message-box "Saved" :title "OK" :detail "Activity has been saved.")))
           :row 6 :column 1 :columnspan 2 :sticky "wn")

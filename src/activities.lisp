@@ -112,6 +112,11 @@
 
 (defun write-database ()
   "Writes the database to the file."
+  
+  (let ((backup (merge-pathnames (make-pathname :type "bak") *db-file*)))
+    (when (probe-file *db-file*)
+      (cl-fad:copy-file *db-file* backup :overwrite t)))
+
   (with-open-file (s *db-file*
                      :direction :output
                      :if-exists :supersede
