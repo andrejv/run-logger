@@ -115,7 +115,7 @@
   
   (let ((backup (merge-pathnames (make-pathname :type "bak") *db-file*)))
     (when (probe-file *db-file*)
-      (cl-fad:copy-file *db-file* backup :overwrite t)))
+      (uiop:copy-file *db-file* backup)))
 
   (with-open-file (s *db-file*
                      :direction :output
