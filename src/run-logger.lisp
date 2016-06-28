@@ -350,7 +350,7 @@
                              (route-delete (var-value r-name))))
           :row 3 :column 2 :sticky "nw")
 
-    (grid aframe :row 5 :column 0 :rowspan 6 :sticky "nse")
+    (grid aframe :row 5 :column 0 :rowspan 7 :sticky "nse")
     (grid acts :row 0 :column 0 :sticky "nse")
     (grid-columnconfigure aframe 0 :weight 1)
     (grid-rowconfigure aframe 0 :weight 1)
@@ -361,24 +361,29 @@
           :row 5 :column 1 :sticky "e")
     (grid (label :textvariable "disp-date" :parent f :width 20)
           :row 5 :column 2 :sticky "w")
-    (grid (label :text "Duration:" :parent f)
+    (grid (label :text "Distance:" :parent f)
           :row 6 :column 1 :sticky "e")
-    (grid (label :textvariable "disp-dur" :parent f :width 20)
+    (grid (label :textvariable "disp-dist" :parent f :width 20)
           :row 6 :column 2 :sticky "w")
-    (grid (label :text "Pace:" :parent f)
+    (grid (label :text "Duration:" :parent f)
           :row 7 :column 1 :sticky "e")
-    (grid (label :textvariable "disp-pace" :parent f :width 20)
+    (grid (label :textvariable "disp-dur" :parent f :width 20)
           :row 7 :column 2 :sticky "w")
-    (grid (label :text "Speed:" :parent f)
+    (grid (label :text "Pace:" :parent f)
           :row 8 :column 1 :sticky "e")
-    (grid (label :textvariable "disp-speed" :parent f :width 20)
+    (grid (label :textvariable "disp-pace" :parent f :width 20)
           :row 8 :column 2 :sticky "w")
-    (grid (label :text "Heartrate:" :parent f)
+    (grid (label :text "Speed:" :parent f)
           :row 9 :column 1 :sticky "e")
-    (grid (label :textvariable "disp-hr" :parent f :width 20)
+    (grid (label :textvariable "disp-speed" :parent f :width 20)
           :row 9 :column 2 :sticky "w")
+    (grid (label :text "Heartrate:" :parent f)
+          :row 10 :column 1 :sticky "e")
+    (grid (label :textvariable "disp-hr" :parent f :width 20)
+          :row 10 :column 2 :sticky "w")
 
     (setf (var-value "disp-date") "-"
+          (var-value "disp-dist") "-"
           (var-value "disp-dur") "-"
           (var-value "disp-pace") "-"
           (var-value "disp-speed") "-"
@@ -406,6 +411,7 @@
                       (setf (var-value r-name) (route-name route))
                       (setf (var-value r-dist) (route-distance route))
                       (setf (var-value "disp-date") "-"
+                            (var-value "disp-dist") "-"
                             (var-value "disp-dur") "-"
                             (var-value "disp-pace") "-"
                             (var-value "disp-hr") "-")
@@ -426,6 +432,7 @@
                          (duration (and act (triple-to-mins (activity-duration act)))))
                     (when act
                       (setf (var-value "disp-date") (date-disp (activity-date act))
+                            (var-value "disp-dist") (format nil "~a km" (activity-distance act))
                             (var-value "disp-dur") (time-disp (activity-duration act))
                             (var-value "disp-pace") (if (> (activity-distance act) 0)
                                                         (pace-disp (/ duration (activity-distance act)))
@@ -445,7 +452,7 @@
     (grid-columnconfigure f 0 :weight 1)
     (grid-columnconfigure f 3 :weight 1)
     (grid-rowconfigure f 4 :weight 1)
-    (grid-rowconfigure f 10 :weight 5)
+    (grid-rowconfigure f 11 :weight 5)
     
     (dolist (sl (grid-slaves f))
       (grid-configure sl :padx 5 :pady 5))
